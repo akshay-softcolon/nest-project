@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFiles, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
-import type { Prisma } from '@prisma/client';
+// import type { Prisma } from '@prisma/client';
 import { CreateAdminDto } from './dto/create.admin.dto';
 import { UpdateAdminDto } from './dto/update.admin.dto';
 import { AdminLoginDto } from './dto/admin.login.dto';
@@ -10,15 +10,14 @@ import { ForgotPasswordDto } from './dto/forgot.password.dto';
 import { ChangePasswordDto } from './dto/change.password.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { ResetPasswordDto } from './dto/reset.password.dto';
-// import { MulterModule } from '@nestjs/platform-express';
-import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { EReq } from 'src/types/express.types';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { MulterConfig } from 'src/config/multer.config';
+import fs from 'fs';
 
-
-
-@Controller({ path: 'admin', version: '1' })
+@Controller('admin')
 export class AdminController {
-    constructor(private readonly adminService: AdminService, ) { }
+    constructor(private readonly adminService: AdminService, ) { }    
 
     @Get()
     async getAdmins(): Promise<{ id: string }[]> {
@@ -31,19 +30,30 @@ export class AdminController {
     }
 
     @Post()
-    async createAdmin( 
-        // @Req() req: EReq,
-        // @Res() res: Response,
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'image', maxCount: 1 },
+    ],  MulterConfig))
+    // @UseGuards(AuthGuard)
+    async createAdmin(
         @Body() data: CreateAdminDto,
-        @UploadedFiles()
-        files: {
-          image?: MulterOptions[];
+        @UploadedFiles() files: { image?: Express.Multer.File[] }
+    ) {
+        if (!files.image || files.image.length === 0) {
+            throw new HttpException('Image file is missing', HttpStatus.BAD_REQUEST);
         }
-    ): Promise<Prisma.AdminCreateInput> {
-        console.log(files);
-        // console.log(req);
+    
+        console.log('Uploaded File:', files.image[0]);
+        // rwrite file in the server
+        const file = files.image[0];
+        const fileName = file.originalname;
+        const filePath = file.path;
+        console.log('File Name:', fileName);
+        console.log('File Path:', filePath);
         
-        
+        // upload buffer file to local storage
+        fs.writeFileSync(`../helper/uploads`, file.buffer);
+    
+        // Process the file (e.g., save file information, update database, etc.)
         return this.adminService.createAdmin(data);
     }
 

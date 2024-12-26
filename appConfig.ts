@@ -1,13 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import { ValidationPipe } from '@nestjs/common';
-import { blue, cyan, magenta, red, yellow } from 'colorette';
-// eslint-disable-next-line @typescript-eslint/no-var-requires, import/no-unresolved
+import {INestApplication, ValidationPipe } from '@nestjs/common';
 import { json } from 'express';
 
-import type { INestApplication } from '@nestjs/common';
-import type { Response } from 'express';
+import { blue, cyan, magenta, red, yellow } from 'colorette';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 export function configureApp(app: INestApplication): void {
   app.enableCors({
     origin: '*',
@@ -18,7 +13,7 @@ export function configureApp(app: INestApplication): void {
 
   app.use(json({ limit: '15mb' }));
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('/api');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -60,13 +55,14 @@ export function configureApp(app: INestApplication): void {
   });
 
   // handle path not found
-  app.use((res: Response) => {
-    res.status(404).send({
-      statusCode: 404,
-      message: 'Path not found',
-    });
-  });
-
+  // app.use((req: Request, res: Response) => {
+  //   console.log(red(`[404] ${req.method} ${req.url}`));
+  //   res.status(404).json({
+  //     statusCode: 404,
+  //     message: 'Path not found',
+  //   });
+  // }); 
+ 
   // Start the application
   app.enableShutdownHooks();
 }

@@ -47,12 +47,12 @@ module.exports = {
       }
     ],
     'no-unused-vars': 'off',
-    // 'no-restricted-imports': [
-    //     'error',
-    //     {
-    //         patterns: ['./*', '../*']
-    //     }
-    // ],
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: ['./*', '../*']
+      }
+    ],
     'no-restricted-syntax': [
       'error',
       'ForStatement',
@@ -133,13 +133,7 @@ module.exports = {
     '@typescript-eslint/promise-function-async': 'error',
     '@typescript-eslint/require-array-sort-compare': 'error',
     '@typescript-eslint/unified-signatures': 'error',
-    '@typescript-eslint/no-unused-vars': [
-      'warn',
-      {
-        args: 'after-used',
-        argsIgnorePattern: '^_'
-      }
-    ],
+
 
     'prefer-destructuring': [
       1,
@@ -155,6 +149,13 @@ module.exports = {
       {
         vars: 'all',
         varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_'
+      }
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      {
         args: 'after-used',
         argsIgnorePattern: '^_'
       }

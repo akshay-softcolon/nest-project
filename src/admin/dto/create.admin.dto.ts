@@ -19,6 +19,5 @@ export class CreateAdminDto {
     @IsEnum(['ADMIN', 'SUPER_ADMIN', 'MAIN_ADMIN'])
     role: string;
 
-    @IsNotEmpty()
-    image?: Buffer;
+    image: string;
 }
