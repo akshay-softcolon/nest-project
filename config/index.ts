@@ -6,6 +6,7 @@ const config = {
     SALT_ROUNDS: 12,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     ADMIN_JWT_SECRET: process.env.ADMIN_SECRET,
+    DATABASE_URL: process.env.DATABASE_URL,
 }
 
 export default config;

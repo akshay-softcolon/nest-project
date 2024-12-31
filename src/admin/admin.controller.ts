@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
-// import type { Prisma } from '@prisma/client';
 import { CreateAdminDto } from './dto/create.admin.dto';
 import { UpdateAdminDto } from './dto/update.admin.dto';
 import { AdminLoginDto } from './dto/admin.login.dto';
@@ -10,14 +9,17 @@ import { ForgotPasswordDto } from './dto/forgot.password.dto';
 import { ChangePasswordDto } from './dto/change.password.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { ResetPasswordDto } from './dto/reset.password.dto';
-import { EReq } from 'src/types/express.types';
+import { EReq, ERes } from 'src/types/express.types';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { MulterConfig } from 'src/config/multer.config';
-import fs from 'fs';
-
+import { MulterConfig } from 'config/multer.config';
+import { ResponseService } from 'src/common/response.servive';
+import messages from 'src/messages';
 @Controller('admin')
 export class AdminController {
-    constructor(private readonly adminService: AdminService, ) { }    
+    constructor(
+        private readonly adminService: AdminService,
+        private readonly responseService: ResponseService 
+    ) { }    
 
     @Get()
     async getAdmins(): Promise<{ id: string }[]> {
@@ -31,30 +33,22 @@ export class AdminController {
 
     @Post()
     @UseInterceptors(FileFieldsInterceptor([
-        { name: 'image', maxCount: 1 },
-    ],  MulterConfig))
-    // @UseGuards(AuthGuard)
+        { name: 'image', maxCount: 1 }
+    ], MulterConfig
+    ))
+    @UseGuards(AuthGuard)
     async createAdmin(
+        @Req() req: EReq,
+        @Res() res: ERes,
         @Body() data: CreateAdminDto,
-        @UploadedFiles() files: { image?: Express.Multer.File[] }
+        @UploadedFiles() files: {
+            image: Express.Multer.File[];
+        } 
     ) {
-        if (!files.image || files.image.length === 0) {
-            throw new HttpException('Image file is missing', HttpStatus.BAD_REQUEST);
-        }
-    
-        console.log('Uploaded File:', files.image[0]);
-        // rwrite file in the server
-        const file = files.image[0];
-        const fileName = file.originalname;
-        const filePath = file.path;
-        console.log('File Name:', fileName);
-        console.log('File Path:', filePath);
-        
-        // upload buffer file to local storage
-        fs.writeFileSync(`../helper/uploads`, file.buffer);
-    
         // Process the file (e.g., save file information, update database, etc.)
-        return this.adminService.createAdmin(data);
+        const createdAdmin: {name: string, email: string, role: string} =  await this.adminService.createAdmin(data, files.image[0].originalname);
+
+        return this.responseService.success(res, messages.Message.ADMIN_CREATED_SUCCESS, createdAdmin);
     }
 
     @Patch(':id')
@@ -73,7 +67,7 @@ export class AdminController {
     }
 
     @Post('login')
-    async login(@Body() data: AdminLoginDto): Promise<{ token: string }> {
+    async login(@Body() data: AdminLoginDto): Promise<{ accessToken: string, refreshToken: string }> {
         return this.adminService.login(data);
     }
 

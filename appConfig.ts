@@ -1,9 +1,13 @@
-import {INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
+import { resolve } from "path";
+// import * as expressEjsLayouts from "express-ejs-layouts";
 import { json } from 'express';
+import * as express from "express";
 
 import { blue, cyan, magenta, red, yellow } from 'colorette';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-export function configureApp(app: INestApplication): void {
+export function configureApp(app: NestExpressApplication): void {
   app.enableCors({
     origin: '*',
     methods: '*',
@@ -53,6 +57,29 @@ export function configureApp(app: INestApplication): void {
       process.exit(1);
     },
   });
+
+  app.useStaticAssets(resolve("./uploads"));
+  app.use("/uploads", express.static(resolve("./uploads")));
+
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set("view engine", "ejs"); // Specify the view engine as 'ejs'
+  expressApp.set("views", "src/views");
+
+  // Enable ValidationPipe globally
+  const validationOptions = {
+    whitelist: true, // Automatically remove properties that are not decorated with validation decorators
+  };
+  app.useGlobalPipes(new ValidationPipe(validationOptions));
+
+// Enable Express EJS layouts
+// app.use(expressEjsLayouts); // what is the use of this line?
+// app.useGlobalFilters(new ValidationExceptionFilter()); // what is the use of this line?
+
+// app.useGlobalPipes(new ValidationPipe(validationOptions)); // why is this line repeated?
+
+
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
 
   // handle path not found
   // app.use((req: Request, res: Response) => {

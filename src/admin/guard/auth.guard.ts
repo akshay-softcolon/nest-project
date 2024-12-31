@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import config from 'config';    
+import config from 'config/index';    
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
+    const token = request.headers.authorization?.split(' ')[1];    
     
-    const token = request.headers.authorizations;
     if (!token) {
       response.status(401).send('Unauthorized');
       return false;

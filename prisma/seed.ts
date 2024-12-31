@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 
 import * as fs from 'fs';
 
-import config from 'config'; 
+import config from 'config/index'; 
 
 const prisma  = new PrismaClient();
 
@@ -36,10 +36,10 @@ async function main() {
     // upload image to images/private folder from images/default folder
       const UploadedFile = {
         originalname: 'default.jpg',
-        buffer: fs.readFileSync('images/default/default.jpg'),
+        buffer: fs.readFileSync('uploads/default/default_image_1.jpg'),
       }
 
-    const uploadPath = `images/private/${UploadedFile.originalname}`;
+    const uploadPath = `uploads/private/${UploadedFile.originalname}`;
     fs.writeFileSync(uploadPath, UploadedFile.buffer);
     Logger.log(`Default image uploaded to: ${uploadPath}`);
 

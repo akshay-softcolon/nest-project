@@ -19,5 +19,5 @@ export class CreateAdminDto {
     @IsEnum(['ADMIN', 'SUPER_ADMIN', 'MAIN_ADMIN'])
     role: string;
 
-    image: string;
+    image: Express.Multer.File;
 }

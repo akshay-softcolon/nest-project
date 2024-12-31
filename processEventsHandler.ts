@@ -5,8 +5,6 @@ import type { INestApplication } from '@nestjs/common';
 export function handleProcessEvents(app: INestApplication): void {
   // handle uncaught exceptions
   process.on('uncaughtException', (error) => {
-    console.log('Uncaught Exception', error);
-    
     Logger.error('Uncaught Exception', error);
     process.exit(1);
   });

@@ -5,9 +5,10 @@ import { configureApp } from 'appConfig';
 import { handleProcessEvents } from 'processEventsHandler';
 
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // app configuration
   configureApp(app);
